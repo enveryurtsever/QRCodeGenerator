@@ -1,4 +1,4 @@
-# QR Code Ggenerator
+# QR Code Generator
 QR CODE Generator. Simple, plain and useful.
 
 # Features
