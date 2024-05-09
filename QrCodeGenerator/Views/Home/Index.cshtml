@@ -1,0 +1,103 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR CODE GENERATOR</title>
+    <link href="~/Content/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/Site.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+    <div class="w-100 h-75 bg-light pt-4 pb-4 text-center fw-bolder">
+        <h1><b>QR CODE</b> GENERATOR</h1>
+    </div>
+    <div class="container mt-5 ">
+        <div id="alert"></div>
+        <div class="row">
+
+            <div class="col-lg-7 col-xs-12 borders p-5">
+
+                <div class="form-floating mt-2">
+                    <input type="text" class="form-control w-100" id="qr" placeholder="Enter your text" required>
+                    <label for="qr">Enter your text</label>
+                </div>(Your QR Code will be generated automatically
+                <div class="form-floating mt-4">
+                    <input type="submit" class="btn btn-outline-primary btn-lg  w-100" value="GENERATE QR CODE" onclick="qrGenerate()" />
+                </div>
+            </div>
+            <div class="col-lg-5 col-xs-12 ">
+                <div class="borders h-100">
+                    <div id="download" class="d-none">
+                        <img id="qrbas" class="w-100" />
+                        <button class="btn  btn-success  w-100 download" rel="">DOWNLOAD .PNG</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="clearfix"></div>
+        </div>
+    </div>
+
+
+
+
+
+    
+
+
+    <script src="~/Content/code.jquery.com_jquery-3.7.1.min.js"></script>
+    <script src="~/Content/bootstrap/js/bootstrap.min.js"></script>
+    <script>
+        function qrGenerate() {
+            var qr = $("#qr").val();
+            if (qr.length > 2) {
+                $.ajax({
+                    dataType: "json",
+                    type: "POST",
+                    url: '/Home/QrqrGenerate',
+                    data: { "qr": qr },
+                    success: function (result) {
+                        if (result.length > 2) {
+                            var image = "/qrCodes/" + result + ".png";
+                            $("#qrbas").attr("src", image);
+                            $("#download").removeClass("d-none");
+                            $(".download").attr("rel", image)
+
+                            $("#alert").html('<div class="alert alert-success mt-2" role="alert">QR CODE created successfully</div >');
+
+                        } else {
+                            $("#alert").html('<div class="alert alert-danger mt-2" role="alert">Please enter at least 3 characters!</div >');
+                            $("#download").addClass("d-none");
+                        }
+
+                    }
+                });
+            } else {
+                $("#alert").html('<div class="alert alert-danger mt-2" role="alert">Please enter at least 3 characters!</div>');
+                $("#download").addClass("d-none");
+            }
+          
+        }
+
+        $('.download').click(function (e) {
+            e.preventDefault();  //stop the browser from following
+            downloadImage($(".download").attr("rel"))          
+
+           // window.location.href = $(".download").attr("rel");
+        });
+        async function downloadImage(imageSrc) {
+            const image = await fetch(imageSrc)
+            const imageBlog = await image.blob()
+            const imageURL = URL.createObjectURL(imageBlog)
+
+            const link = document.createElement('a')
+            link.href = imageURL
+            link.download = 'qrcode'
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+        }
+    </script>
+</body>
+</html>
